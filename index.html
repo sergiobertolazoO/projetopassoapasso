@@ -18,13 +18,32 @@
             align-items: center;
             justify-content: center;
         }
-        .login-btn {
+        .right-btn {
             margin-left: auto; /* Alinha o botão Login à direita */
         }
+         
+        /* Deixa o menu fixo no topo */
+        .menu-fixo {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: #333;
+        z-index: 1000; /* Mantém o menu acima de outros elementos */
+        } 
+        .modal-buttons {
+        display: flex;
+        justify-content: flex-end; /* Alinha os botões à direita */
+        gap: 10px; /* Espaçamento entre os botões */
+        }
+        .hidden {
+        display: none !important;
+        }
+
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light menu-fixo">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">Passo a Passo</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,11 +60,12 @@
                     <li class="nav-item">
                         <a class="nav-link" href="#contato">Contato</a>
                     </li>
-                    <li class="nav-item">
+                    <!-- <li class="nav-item">
                         <a class="nav-link" href="#apresentacao">Apresentação</a>
-                    </li>
+                    </li> -->
                 </ul>
-                <button class="btn btn-primary login-btn" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
+                <button id="loginModalButton" class="btn btn-primary right-btn" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
+                <button id="cadastreseModalButton" class="btn" data-bs-toggle="modal" data-bs-target="#registerModal"">Cadastre-se</button>
             </div>
         </div>
     </nav>
@@ -58,6 +78,23 @@
     </header>
 
     <main class="container-fluid p-0">
+
+        
+        <section id="projeto" class="bg-light hidden">
+            <div class="container text-center">
+                <div>
+                    <h2>Projetos</h2>
+                </div>
+                   
+                <p>Criar novo Projeto</p>
+                <button id="novoProjeto" class="btn btn-primary">Criar Projeto</button>
+            
+            
+                <!-- <p>Seus Projetos.</p> -->
+            </div>
+        </section>
+
+
         <section id="sobre" class="bg-light">
             <div class="container text-center">
                 <h2>Sobre o Projeto</h2>
@@ -65,12 +102,12 @@
             </div>
         </section>
 
-        <section id="apresentacao" class="bg-secondary text-white">
+       <!--  <section id="apresentacao" class="bg-secondary text-white">
             <div class="container text-center">
                 <h2>Apresentação</h2>
                 <iframe src="https://prezi.com/craft/room/7e5c85b3-209b-4904-9351-73bdc318c12e" id="iframe_container" frameborder="0" webkitallowfullscreen="" mozallowfullscreen="" allowfullscreen="" allow="autoplay; fullscreen" height="400" width="600"></iframe>
             </div>
-        </section>
+        </section> -->
 
         <section id="contato" class="bg-light">
             <div class="container text-center">
@@ -78,6 +115,7 @@
                 <p>Nosso contato.</p>
             </div>
         </section>
+
     </main>
 
     <!-- Modal para Login -->
@@ -89,16 +127,46 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form>
+                    <form id="loginForm">
                         <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" placeholder="Digite seu email">
+                            <label for="email" class="form-label">Usuario</label>
+                            <input type="" class="form-control" id="email" placeholder="Digite seu Usuario">
                         </div>
                         <div class="mb-3">
                             <label for="password" class="form-label">Senha</label>
                             <input type="password" class="form-control" id="password" placeholder="Digite sua senha">
                         </div>
-                        <button type="submit" class="btn btn-primary">Entrar</button>
+                        <button type="submit" class="btn btn-primary right-btn modal-buttons">Entrar</button>
+                        
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Cadastre-se -->
+    <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="registerModalLabel">Cadastre-se</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="registerForm">
+                        <div class="mb-3">
+                            <label for="registerUsername" class="form-label">Usuário</label>
+                            <input type="text" class="form-control" id="registerUsername" placeholder="Digite seu nome de usuário" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="registerPassword" class="form-label">Senha</label>
+                            <input type="password" class="form-control" id="registerPassword" placeholder="Digite sua senha" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Confirme a Senha</label>
+                            <input type="password" class="form-control" id="confirmPassword" placeholder="Confirme sua senha" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Cadastrar</button>
                     </form>
                 </div>
             </div>
@@ -111,4 +179,183 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
+
+<script>
+    // Variável global para armazenar a conexão com o banco de dados
+    let db;
+    let isLoggedIn = false; // Variável para controlar o estado de login
+
+    // Abrir ou criar um banco de dados
+    const request = indexedDB.open("UserDatabase", 1);
+
+    request.onupgradeneeded = (event) => {
+        db = event.target.result;
+        // Criar uma store para usuários
+        db.createObjectStore("users", { keyPath: "username" });
+    };
+
+    request.onsuccess = (event) => {
+        db = event.target.result; // Armazena a conexão no escopo global
+        console.log("Banco de dados aberto com sucesso!");
+    };
+
+    request.onerror = (event) => {
+        console.error("Erro ao abrir o banco de dados:", event.target.error);
+    };
+
+    // Função para cadastrar usuário
+    function registerUser(username, password) {
+        if (!db) {
+            console.error("Banco de dados não está disponível.");
+            return;
+        }
+
+        const transaction = db.transaction("users", "readwrite");
+        const userStore = transaction.objectStore("users");
+
+        // Verificar se o usuário já existe
+        const getRequest = userStore.get(username);
+
+        getRequest.onsuccess = () => {
+            if (getRequest.result) {
+                // Usuário já existe
+                alert("Erro: O nome de usuário já está em uso. Escolha outro.");
+            } else {
+                // Usuário não existe, prosseguir com o cadastro
+                const hashedPassword = btoa(password); // Hash simples para a senha
+                userStore.add({ username, password: hashedPassword });
+
+                transaction.oncomplete = () => {
+                    alert("Usuário cadastrado com sucesso!");
+                };
+
+                transaction.onerror = () => {
+                    alert("Erro ao cadastrar usuário. Tente novamente.");
+                };
+            }
+        };
+
+        getRequest.onerror = () => {
+            console.error("Erro ao verificar se o usuário já existe.");
+        };
+    }
+
+
+        // Função para login de usuário
+        function login(username, password) {
+        if (!db) {
+            console.error("Banco de dados não está disponível.");
+            return;
+        }
+
+        const transaction = db.transaction("users", "readwrite");
+        const userStore = transaction.objectStore("users");
+
+        // Verificar se o usuário já existe
+        const getRequest = userStore.get(username);
+        const getRequestPass = userStore.get(password);
+
+        getRequest.onsuccess = () => {
+            if (getRequest.result) {
+
+                //alert("Bem vindo!");
+
+                getRequestPass.onsuccess = () => {
+                    if (getRequestPass.result) {
+                        // Usuário já existe
+                        //alert("Bem vindo!");
+
+                        isLoggedIn = true;
+                        updateUIAfterLogin(); // Atualiza o menu e exibe a seção "Projetos"
+
+                    } else {
+                        alert("Usuario ou senha incorretos!!");
+                    }
+                };
+                
+            } else {
+                alert("Usuario não existe!");
+            }
+        };
+
+        getRequest.onerror = () => {
+            console.error("Erro ao verificar se o usuário já existe.");
+        };
+    }
+
+    // Evento de envio do formulário
+    document.getElementById("registerForm").addEventListener("submit", function (event) {
+        event.preventDefault(); // Impede o envio padrão do formulário
+
+        const username = document.getElementById("registerUsername").value;
+        const password = document.getElementById("registerPassword").value;
+        const confirmPassword = document.getElementById("confirmPassword").value;
+
+        // Verifica se as senhas coincidem
+        if (password !== confirmPassword) {
+            alert("As senhas não coincidem!");
+            return;
+        }
+
+        // Chama a função para registrar o usuário
+        registerUser(username, password);
+
+        // Limpa o formulário e fecha o modal
+        document.getElementById("registerForm").reset();
+        const registerModal = bootstrap.Modal.getInstance(document.getElementById("registerModal"));
+        registerModal.hide();
+    });
+
+
+    document.getElementById("loginForm").addEventListener("submit", function (event) {
+        event.preventDefault(); // Impede o envio padrão do formulário
+
+        const username = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+       
+        // Chama a função para registrar o usuário
+        login(username, password);
+
+        // Limpa o formulário e fecha o modal
+        document.getElementById("loginForm").reset();
+        const loginModal = bootstrap.Modal.getInstance(document.getElementById("loginModal"));
+        loginModal.hide();
+    });
+
+    // Função para abrir o modal de cadastro
+    function openModalRegister() {
+        const modal = document.getElementById("registerModal");
+        const modalBootstrap = new bootstrap.Modal(modal);
+        modalBootstrap.show();
+    }
+
+
+     // Atualizar a interface após o login
+     function updateUIAfterLogin() {
+        // Remover o botão de login
+        const loginButton = document.getElementById("loginButton");
+        if (loginButton) {
+            loginButton.remove();
+        }
+
+        // Adicionar o item "Projetos" ao menu
+        const navbarNav = document.querySelector(".navbar-nav");
+        const projetosMenuItem = document.createElement("li");
+        projetosMenuItem.className = "nav-item";
+        projetosMenuItem.innerHTML = `<a class="nav-link bg-primary" href="#projeto">Projetos</a>`;
+        navbarNav.appendChild(projetosMenuItem);
+
+        // Exibir a seção "Projetos"
+        const projetosSection = document.getElementById("projeto");
+        const cadastreseModalButton = document.getElementById("cadastreseModalButton");
+        const loginModalButton = document.getElementById("loginModalButton");
+
+        projetosSection.classList.remove("hidden");
+
+        cadastreseModalButton.classList.add("hidden"); // Oculta o botão "Cadastre-se"  
+        loginModalButton.classList.add("hidden"); // Oculta o botão "Cadastre-se"  
+    }
+</script>
+
 </html>
