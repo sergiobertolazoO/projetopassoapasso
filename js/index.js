@@ -37,6 +37,57 @@ async function openDatabase() {
     };
 }
 
+
+// Função para abrir ou criar o banco de dados
+async function openDatabaseProjects() {
+
+    //here!
+
+    const databases = await indexedDB.databases(); // Lista os bancos existentes
+    const dbInfo = databases.find((db) => db.name === "UserDatabase");
+    const version = dbInfo ? dbInfo.version + 1 : 1; // Incrementa a versão se o banco já existir
+
+    const request = indexedDB.open("UserDatabase", version);
+
+    request.onupgradeneeded = (event) => {
+        db = event.target.result;
+
+        try{
+            checkUserProjects();
+        }
+        catch(e){
+            console.log('nenhum projeto');
+        }
+
+        // Criar a store de usuários, se não existir
+        if (!db.objectStoreNames.contains("users")) {
+            db.createObjectStore("users", { keyPath: "username" });
+        }
+
+        // Criar a store de projetos, se não existir
+        if (!db.objectStoreNames.contains("projects")) {
+            db.createObjectStore("projects", { keyPath: "id", autoIncrement: true });
+        }
+    };
+
+    request.onsuccess = (event) => {
+        db = event.target.result;
+        console.log("Banco de dados aberto com sucesso!");
+
+        try{
+            checkUserProjects();
+        }
+        catch(e){
+            console.log('nenhum projeto');
+        }
+        
+    };
+
+    request.onerror = (event) => {
+        console.error("Erro ao abrir o banco de dados:", event.target.error);
+    };
+}
+
 // Chamar a função para abrir o banco de dados
 openDatabase();
 
@@ -79,7 +130,7 @@ function registerUser(username, password) {
 // Função para realizar login
 function login(username, password) {
 
-    alert('call login');
+    //alert('call login');
 
     if (!db) {
         console.error("Banco de dados não está disponível.");
@@ -116,6 +167,8 @@ function login(username, password) {
 // Função para atualizar a interface após o login
 function updateUIAfterLogin() {
 
+
+    try{
     //alert('updateUIAfterLogin');
 
     // Remover o botão de login
@@ -140,6 +193,10 @@ function updateUIAfterLogin() {
 
     const logoutBtn = document.getElementById("logoutBtn");
     logoutBtn.classList.remove("hidden");
+    }
+    catch(e){
+        console.log('user off');
+    }
 }
 
 // Função para atualizar a interface após o login
@@ -189,44 +246,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// Evento de envio do formulário de registro
-document.getElementById("registerForm").addEventListener("submit", function (event) {
-    event.preventDefault(); // Impede o envio padrão do formulário
 
-    const username = document.getElementById("registerUsername").value;
-    const password = document.getElementById("registerPassword").value;
-    const confirmPassword = document.getElementById("confirmPassword").value;
-
-    // Verifica se as senhas coincidem
-    if (password !== confirmPassword) {
-        alert("As senhas não coincidem!");
-        return;
-    }
-
-    // Chama a função para registrar o usuário
-    registerUser(username, password);
-
-    // Limpa o formulário e fecha o modal
-    document.getElementById("registerForm").reset();
-    const registerModal = bootstrap.Modal.getInstance(document.getElementById("registerModal"));
-    registerModal.hide();
-});
-
-// Evento de envio do formulário de login
-document.getElementById("loginForm").addEventListener("submit", function (event) {
-    event.preventDefault(); // Impede o envio padrão do formulário
-
-    const username = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-
-    // Chama a função para realizar o login
-    login(username, password);
-
-    // Limpa o formulário e fecha o modal
-    document.getElementById("loginForm").reset();
-    const loginModal = bootstrap.Modal.getInstance(document.getElementById("loginModal"));
-    loginModal.hide();
-});
 
 // Função para redirecionar para a página de projetos
 function listaProjetos() {
