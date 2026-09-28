@@ -66,6 +66,7 @@
                 </ul>
                 <button id="loginModalButton" class="btn btn-primary right-btn" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
                 <button id="cadastreseModalButton" class="btn" data-bs-toggle="modal" data-bs-target="#registerModal"">Cadastre-se</button>
+                <button id="logoutBtn" class="btn right-btn hidden" onclick="logout()" >Logout</button>
             </div>
         </div>
     </nav>
@@ -87,7 +88,7 @@
                 </div>
                    
                 <p>Criar novo Projeto</p>
-                <button id="novoProjeto" class="btn btn-primary">Criar Projeto</button>
+                <button id="novoProjeto" class="btn btn-primary" onclick="listaProjetos();">Criar Projeto</button>
             
             
                 <!-- <p>Seus Projetos.</p> -->
@@ -181,181 +182,7 @@
 </body>
 
 
-<script>
-    // Variável global para armazenar a conexão com o banco de dados
-    let db;
-    let isLoggedIn = false; // Variável para controlar o estado de login
-
-    // Abrir ou criar um banco de dados
-    const request = indexedDB.open("UserDatabase", 1);
-
-    request.onupgradeneeded = (event) => {
-        db = event.target.result;
-        // Criar uma store para usuários
-        db.createObjectStore("users", { keyPath: "username" });
-    };
-
-    request.onsuccess = (event) => {
-        db = event.target.result; // Armazena a conexão no escopo global
-        console.log("Banco de dados aberto com sucesso!");
-    };
-
-    request.onerror = (event) => {
-        console.error("Erro ao abrir o banco de dados:", event.target.error);
-    };
-
-    // Função para cadastrar usuário
-    function registerUser(username, password) {
-        if (!db) {
-            console.error("Banco de dados não está disponível.");
-            return;
-        }
-
-        const transaction = db.transaction("users", "readwrite");
-        const userStore = transaction.objectStore("users");
-
-        // Verificar se o usuário já existe
-        const getRequest = userStore.get(username);
-
-        getRequest.onsuccess = () => {
-            if (getRequest.result) {
-                // Usuário já existe
-                alert("Erro: O nome de usuário já está em uso. Escolha outro.");
-            } else {
-                // Usuário não existe, prosseguir com o cadastro
-                const hashedPassword = btoa(password); // Hash simples para a senha
-                userStore.add({ username, password: hashedPassword });
-
-                transaction.oncomplete = () => {
-                    alert("Usuário cadastrado com sucesso!");
-                };
-
-                transaction.onerror = () => {
-                    alert("Erro ao cadastrar usuário. Tente novamente.");
-                };
-            }
-        };
-
-        getRequest.onerror = () => {
-            console.error("Erro ao verificar se o usuário já existe.");
-        };
-    }
-
-
-        // Função para login de usuário
-        function login(username, password) {
-        if (!db) {
-            console.error("Banco de dados não está disponível.");
-            return;
-        }
-
-        const transaction = db.transaction("users", "readwrite");
-        const userStore = transaction.objectStore("users");
-
-        // Verificar se o usuário já existe
-        const getRequest = userStore.get(username);
-        const getRequestPass = userStore.get(password);
-
-        getRequest.onsuccess = () => {
-            if (getRequest.result) {
-
-                //alert("Bem vindo!");
-
-                getRequestPass.onsuccess = () => {
-                    if (getRequestPass.result) {
-                        // Usuário já existe
-                        //alert("Bem vindo!");
-
-                        isLoggedIn = true;
-                        updateUIAfterLogin(); // Atualiza o menu e exibe a seção "Projetos"
-
-                    } else {
-                        alert("Usuario ou senha incorretos!!");
-                    }
-                };
-                
-            } else {
-                alert("Usuario não existe!");
-            }
-        };
-
-        getRequest.onerror = () => {
-            console.error("Erro ao verificar se o usuário já existe.");
-        };
-    }
-
-    // Evento de envio do formulário
-    document.getElementById("registerForm").addEventListener("submit", function (event) {
-        event.preventDefault(); // Impede o envio padrão do formulário
-
-        const username = document.getElementById("registerUsername").value;
-        const password = document.getElementById("registerPassword").value;
-        const confirmPassword = document.getElementById("confirmPassword").value;
-
-        // Verifica se as senhas coincidem
-        if (password !== confirmPassword) {
-            alert("As senhas não coincidem!");
-            return;
-        }
-
-        // Chama a função para registrar o usuário
-        registerUser(username, password);
-
-        // Limpa o formulário e fecha o modal
-        document.getElementById("registerForm").reset();
-        const registerModal = bootstrap.Modal.getInstance(document.getElementById("registerModal"));
-        registerModal.hide();
-    });
-
-
-    document.getElementById("loginForm").addEventListener("submit", function (event) {
-        event.preventDefault(); // Impede o envio padrão do formulário
-
-        const username = document.getElementById("email").value;
-        const password = document.getElementById("password").value;
-       
-        // Chama a função para registrar o usuário
-        login(username, password);
-
-        // Limpa o formulário e fecha o modal
-        document.getElementById("loginForm").reset();
-        const loginModal = bootstrap.Modal.getInstance(document.getElementById("loginModal"));
-        loginModal.hide();
-    });
-
-    // Função para abrir o modal de cadastro
-    function openModalRegister() {
-        const modal = document.getElementById("registerModal");
-        const modalBootstrap = new bootstrap.Modal(modal);
-        modalBootstrap.show();
-    }
-
-
-     // Atualizar a interface após o login
-     function updateUIAfterLogin() {
-        // Remover o botão de login
-        const loginButton = document.getElementById("loginButton");
-        if (loginButton) {
-            loginButton.remove();
-        }
-
-        // Adicionar o item "Projetos" ao menu
-        const navbarNav = document.querySelector(".navbar-nav");
-        const projetosMenuItem = document.createElement("li");
-        projetosMenuItem.className = "nav-item";
-        projetosMenuItem.innerHTML = `<a class="nav-link bg-primary" href="#projeto">Projetos</a>`;
-        navbarNav.appendChild(projetosMenuItem);
-
-        // Exibir a seção "Projetos"
-        const projetosSection = document.getElementById("projeto");
-        const cadastreseModalButton = document.getElementById("cadastreseModalButton");
-        const loginModalButton = document.getElementById("loginModalButton");
-
-        projetosSection.classList.remove("hidden");
-
-        cadastreseModalButton.classList.add("hidden"); // Oculta o botão "Cadastre-se"  
-        loginModalButton.classList.add("hidden"); // Oculta o botão "Cadastre-se"  
-    }
-</script>
+<script src="js/index.js"></script>
+ 
 
 </html>

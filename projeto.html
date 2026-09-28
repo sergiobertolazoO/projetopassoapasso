@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projetos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Passo a Passo</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="projeto.html">Projetos</a>
+                    </li>
+                </ul>
+                <button id="logoutBtn" class="btn right-btn" onclick="logout()" >Logout</button>
+            </div>
+        </div>        
+    </nav>
+
+    <main class="container my-5">
+        <h1 class="text-center mb-4">Seus Projetos</h1>
+
+        <!-- Lista de Projetos -->
+        <div id="projectList" class="mb-4">
+            <p class="text-center">Nenhum projeto encontrado. Clique em "Criar Projeto" para adicionar um novo.</p>
+        </div>
+
+        <!-- Botão para criar novo projeto -->
+        <div class="text-center">
+            <button id="createProjectButton" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#projectModal">Criar Novo Projeto</button>
+        </div>
+    </main>
+
+    <!-- Modal para criar novo projeto -->
+    <div class="modal fade" id="projectModal" tabindex="-1" aria-labelledby="projectModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="projectModalLabel">Criar Novo Projeto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="projectForm">
+                        <div class="mb-3">
+                            <label for="projectName" class="form-label">Nome do Projeto</label>
+                            <input type="text" class="form-control" id="projectName" placeholder="Digite o nome do projeto" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="projectType" class="form-label">Tipo do Projeto</label>
+                            <select class="form-select" id="projectType" required>
+                                <option value="" disabled selected>Selecione</option>
+                                <option value="Estratégico">Estratégico</option>
+                                <option value="Tático">Tático</option>
+                                <option value="Operacional">Operacional</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="startDate" class="form-label">Data de Início</label>
+                            <input type="date" class="form-control" id="startDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="endDate" class="form-label">Data de Término</label>
+                            <input type="date" class="form-control" id="endDate" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Salvar Projeto</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/index.js"></script>
+    <script src="js/projeto.js"></script>
+</body>
+</html>
